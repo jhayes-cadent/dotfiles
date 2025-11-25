@@ -1,11 +1,6 @@
--- This file is reverted to the older setup style.
--- NOTE: This version is syntactically correct, but it is the version that was
--- causing the runtime error: "attempt to call field 'enable' (a nil value)".
--- This is provided to restore your previous state as requested.
-
 return {
   {
-    -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
+    -- `lazydev` configures Lua LSP for your Neovim config, runtime, and plugins
     'folke/lazydev.nvim',
     ft = 'lua',
     opts = {
@@ -19,15 +14,14 @@ return {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- This is the older dependency list
       { 'williamboman/mason.nvim', opts = {} },
       'williamboman/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim', -- This is the key part of the old setup
+      'WhoIsSethDaniel/mason-tool-installer.nvim',
       { 'j-hui/fidget.nvim', opts = {} },
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
-      -- LspAttach autocommand to set keymaps on buffer entry
+      -- LspAttach autocommand to set keymaps and document highlight
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -35,17 +29,21 @@ return {
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
-          map('gd', require('telescope.builtin').lsp_definitions, '\\[G\\]oto \\[D\\]efinition')
-          map('gr', require('telescope.builtin').lsp_references, '\\[G\\]oto \\[R\\]eferences')
-          map('gI', require('telescope.builtin').lsp_implementations, '\\[G\\]oto \\[I\\]mplementation')
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type \\[D\\]efinition')
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '\\[D\\]ocument \\[S\\]ymbols')
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '\\[W\\]orkspace \\[S\\]ymbols')
-          map('<leader>rn', vim.lsp.buf.rename, '\\[R\\]e\\[n\\]ame')
-          map('<leader>ca', vim.lsp.buf.code_action, '\\[C\\]ode \\[A\\]ction', { 'n', 'x' })
-          map('gD', vim.lsp.buf.declaration, '\\[G\\]oto \\[D\\]eclaration')
+
+          -- Telescope LSP keymaps
+          map('gd', require('telescope.builtin').lsp_definitions, 'Goto Definition')
+          map('gr', require('telescope.builtin').lsp_references, 'Goto References')
+          map('gI', require('telescope.builtin').lsp_implementations, 'Goto Implementation')
+          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type Definition')
+          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
+          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
+          map('<leader>rn', vim.lsp.buf.rename, 'Rename')
+          map('<leader>ca', vim.lsp.buf.code_action, 'Code Action', { 'n', 'x' })
+          map('gD', vim.lsp.buf.declaration, 'Goto Declaration')
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+          -- Document highlights
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -60,54 +58,52 @@ return {
             })
             vim.api.nvim_create_autocmd('LspDetach', {
               group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-              callback = function(event2)
+              callback = function(ev)
                 vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
+                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = ev.buf }
               end,
             })
           end
+
+          -- Inlay hints toggle
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-            end, '\\[T\\]oggle Inlay \\[H\\]ints')
+            end, 'Toggle Inlay Hints')
           end
         end,
       })
 
-      -- Get capabilities
+      -- Capabilities for LSP + cmp
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-      -- Define servers with their settings
+      -- Servers and settings
       local servers = {
         lua_ls = {
           settings = {
             Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
+              completion = { callSnippet = 'Replace' },
             },
           },
         },
+        -- add more servers here if needed
       }
 
-      -- Use mason-tool-installer to ensure LSPs and tools are installed
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua',
-      })
+      -- Ensure servers and tools are installed
+      local ensure_installed = vim.tbl_keys(servers)
+      vim.list_extend(ensure_installed, { 'stylua' })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      -- Use the old manual handlers function to set up servers
-      require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
-      }
+      -- Setup Mason-LSPConfig without automatic setup
+      require('mason-lspconfig').setup { automatic_setup = false }
+
+      -- Configure servers manually using new API
+      for name, opts in pairs(servers) do
+        opts.capabilities = vim.tbl_deep_extend('force', {}, capabilities, opts.capabilities or {})
+        vim.lsp.config(name, opts)
+        vim.lsp.enable(name)
+      end
     end,
   },
 }

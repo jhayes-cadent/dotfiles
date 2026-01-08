@@ -11,6 +11,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Create necessary sub-directories when creating a
+-- new file through vim and saving with :w in a
+-- non-existing file.
+local mkdir_group = vim.api.nvim_create_augroup('Mkdir', { clear = true })
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = mkdir_group,
+  callback = function()
+    vim.fn.mkdir(vim.fn.expand '%:p:h', 'p')
+  end,
+})
 -- Disable auto-commenting on new lines
 -- vim.api.nvim_create_autocmd('BufEnter', {
 --   desc = 'Disable auto-commenting on new lines',
@@ -20,4 +31,3 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 --     vim.opt_local.formatoptions-='cro'
 --   end,
 -- })
-

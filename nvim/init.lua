@@ -109,7 +109,7 @@ require 'lazy-bootstrap'
 require 'lazy-plugins'
 
 -- [[ Configure plugin setups]]
-require 'setup'
+-- require 'setup'
 
 -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
 --

@@ -1,9 +1,10 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-#Alias
+# Custom Aliases
+
+alias lh="ls -l"
 alias pro="cd ~/projects && ls -l"
-alias pra="cd ~/practice && ls -l"
 alias glc="g log --all --graph --decorate"
 alias dc="cd ~/Documents/ && l"
 alias dt="cd ~/Desktop/ && l"
@@ -12,14 +13,13 @@ alias rmd="rm -R"
 alias pac="pwd | pbcopy"
 alias hl='history | less'
 alias cdl='cd "$@" && ls -l'
-alias gc-start='gcloud compute instances start '
-alias gc-stop='gcloud compute instances stop'
-alias start-cluster='./start_cluster.sh'
-alias tovl='lua vim.diagnostic.config({ virtual_text = false, signs = false, underline = false })'
+#alias gc-start='gcloud compute instances start '
+#alias gc-stop='gcloud compute instances stop'
+#alias start-cluster='./start_cluster.sh'
+alias home='~'
 
-# ADTH
-alias start-etl-cluster='ssh -i /Users/jhayes/.ssh/adth_dag_dev_adth_ds_dags airflow@10.166.0.121'
-alias start-cpa-cluster='ssh -i /Users/jhayes/.ssh/adth_dag_dev_ airflow@10.166.0.30'
+# Custom variables
+export projects="$HOME/projects/"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -133,3 +133,5 @@ alias v='nvim'
 
 # Settings Python version for CloudSDK
 export CLOUDSDK_PYTHON=python3.12
+
+. "$HOME/.local/bin/env"

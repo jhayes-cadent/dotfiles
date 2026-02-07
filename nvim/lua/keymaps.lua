@@ -32,3 +32,25 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+vim.keymap.set("n", "gx", function()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local line = vim.api.nvim_get_current_line()
+
+  -- find markdown link under cursor
+  for text, url in line:gmatch("%[([^%]]+)%]%(([^%)]+)%)") do
+    local start_col = line:find(text, 1, true)
+    local end_col = start_col + #text
+
+    if col >= start_col - 1 and col <= end_col then
+      vim.fn.jobstart({ "open", url }) -- macOS
+      -- vim.fn.jobstart({ "xdg-open", url }) -- Linux
+      -- vim.fn.jobstart({ "start", url }, { detach = true }) -- Windows
+      return
+    end
+  end
+
+  -- fallback for raw URLs
+  vim.cmd("normal! gx")
+end, { desc = "Open markdown link" })
+

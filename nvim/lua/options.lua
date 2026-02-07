@@ -84,3 +84,7 @@ vim.o.smartcase = true
 
 -- Wrap long lines
 vim.o.wrap = true
+
+-- Conceal level for markdown
+vim.opt.conceallevel = 2
+vim.opt.concealcursor = 'nc'

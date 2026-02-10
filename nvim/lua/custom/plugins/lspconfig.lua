@@ -80,6 +80,7 @@ return {
 
       -- Servers and settings
       local servers = {
+        pyright = {},
         lua_ls = {
           settings = {
             Lua = {

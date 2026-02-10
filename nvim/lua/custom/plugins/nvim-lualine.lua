@@ -1,3 +1,14 @@
+-- Cache login info at startup (only runs once)
+local user = os.getenv 'USER' or 'unknown'
+local ip = vim.fn.system("ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1"):gsub('%s+', '')
+if ip == '' then
+  ip = 'localhost'
+end
+
+local function login_info()
+  return string.format('[%s@%s]', user, ip)
+end
+
 return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -53,4 +64,26 @@ return {
   winbar = {},
   inactive_winbar = {},
   extensions = {},
+  -- remote configs
+  --     sections = {
+  --       lualine_a = { 'mode' },
+  --       lualine_b = { 'branch', 'diff', 'diagnostics' },
+  --       lualine_c = { login_info, 'filename' },
+  --       lualine_x = { 'encoding', 'fileformat', 'filetype' },
+  --       lualine_y = { 'progress' },
+  --       lualine_z = { 'location' },
+  --     },
+  --     inactive_sections = {
+  --       lualine_a = {},
+  --       lualine_b = {},
+  --       lualine_c = { 'filename' },
+  --       lualine_x = { 'location' },
+  --       lualine_y = {},
+  --       lualine_z = {},
+  --     },
+  --     tabline = {},
+  --     winbar = {},
+  --     inactive_winbar = {},
+  --     extensions = {},
+  --	},
 }

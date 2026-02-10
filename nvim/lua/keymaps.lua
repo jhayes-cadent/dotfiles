@@ -1,5 +1,4 @@
 --  See `:help vim.keymap.set()`
-
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -9,6 +8,9 @@ vim.keymap.set('v', '<leader>lf', vim.lsp.buf.format, { remap = false })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- Close all other windows and quit without saving
+vim.keymap.set('n', '<leader>qa', '<cmd>only | q!<CR>', { desc = 'Close other windows and [Q]uit [A]ll' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -28,6 +30,21 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
+-- Open Oil file explorer
+vim.keymap.set('n', '<leader>o', '<cmd>Oil<CR>', { desc = '[O]il file explorer' })
+
+-- ws = [W]idth [S]hrink: shrink active window to 1/5 terminal width
+vim.keymap.set('n', '<leader>ws', function()
+  local width = math.floor(vim.o.columns / 5)
+  vim.cmd('vertical resize ' .. width)
+end, { desc = '[W]idth [S]hrink to 1/5 width' })
+
+-- hs = [H]eight [S]hrink: shrink active window to 1/5 terminal height
+vim.keymap.set('n', '<leader>hs', function()
+  local height = math.floor(vim.o.lines / 5)
+  vim.cmd('resize ' .. height)
+end, { desc = '[H]eight [S]hrink to 1/5 height' })
+
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
@@ -53,4 +70,3 @@ vim.keymap.set("n", "gx", function()
   -- fallback for raw URLs
   vim.cmd("normal! gx")
 end, { desc = "Open markdown link" })
-

@@ -13,7 +13,7 @@ return {
       'javascript',
       'html',
       'css',
-      --'latex',
+      -- 'latex',
       'markdown',
       'python',
       'sql',
@@ -65,5 +65,5 @@ return {
         },
       },
     },
-  },
+},
 }

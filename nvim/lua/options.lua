@@ -64,6 +64,10 @@ vim.o.scrolloff = 10
 -- Change directory to current file being worked on
 vim.o.autochdir = true
 
+-- NOTE: autochdir conflicts with oil.nvim, so we use a BufEnter autocmd instead
+-- that skips oil:// buffers. Uses lcd so each split tracks its own directory.
+-- vim.o.autochdir = true
+
 -- Autoread file when file is changed outside of buffer
 vim.o.autoread = true
 

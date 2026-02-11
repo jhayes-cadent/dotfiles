@@ -1,69 +1,87 @@
 return {
-  'nvim-treesitter/nvim-treesitter',
-  build = ':TSUpdate',
-  main = 'nvim-treesitter.configs',
-  dependencies = {
-    'nvim-treesitter/nvim-treesitter-textobjects',
+  {
+    'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
+    config = function()
+      require('nvim-treesitter').setup()
+
+      -- Auto-install parsers on startup
+      local ensure_installed = {
+        'c',
+        'lua',
+        'java',
+        'javascript',
+        'html',
+        'css',
+        'markdown',
+        'python',
+        'sql',
+        'bash',
+        'vim',
+      }
+      vim.api.nvim_create_autocmd('VimEnter', {
+        once = true,
+        callback = function()
+          local installed = require('nvim-treesitter').get_installed()
+          local to_install = vim.tbl_filter(function(lang)
+            return not vim.list_contains(installed, lang)
+          end, ensure_installed)
+          if #to_install > 0 then
+            require('nvim-treesitter').install(to_install)
+          end
+        end,
+      })
+    end,
   },
-  opts = {
-    ensure_installed = {
-      'c',
-      'lua',
-      'java',
-      'javascript',
-      'html',
-      'css',
-      --'latex',
-      'markdown',
-      'python',
-      'sql',
-      'bash',
-      'vim',
-    },
-    auto_install = false,
-    highlight = {
-      enable = true,
-      additional_vim_regex_highlighting = { 'ruby' },
-    },
-    indent = {
-      enable = true,
-      disable = { 'ruby' },
-    },
-    textobjects = {
-      select = {
-        enable = true,
-        lookahead = true,
-        keymaps = {
-          ['af'] = '@function.outer',
-          ['if'] = '@function.inner',
-          ['ac'] = '@class.outer',
-          ['ic'] = '@class.inner',
-          ['al'] = '@loop.outer',
-          ['il'] = '@loop.inner',
-          ['ap'] = '@parameter.outer',
-          ['ip'] = '@parameter.inner',
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      -- Configure textobjects options (lookahead for select, set_jumps for move)
+      require('nvim-treesitter-textobjects').setup({
+        select = {
+          lookahead = true,
         },
-      },
-      move = {
-        enable = true,
-        set_jumps = true,
-        goto_next_start = {
-          [']m'] = '@function.outer',
-          [']]'] = '@class.outer',
+        move = {
+          set_jumps = true,
         },
-        goto_next_end = {
-          [']M'] = '@function.outer',
-          [']['] = '@class.outer',
-        },
-        goto_previous_start = {
-          ['[m'] = '@function.outer',
-          ['[['] = '@class.outer',
-        },
-        goto_previous_end = {
-          ['[M'] = '@function.outer',
-          ['[]'] = '@class.outer',
-        },
-      },
-    },
+      })
+
+      -- Textobject selection keymaps
+      local ts_select = require('nvim-treesitter-textobjects.select')
+      local select_maps = {
+        ['af'] = '@function.outer',
+        ['if'] = '@function.inner',
+        ['ac'] = '@class.outer',
+        ['ic'] = '@class.inner',
+        ['al'] = '@loop.outer',
+        ['il'] = '@loop.inner',
+        ['ap'] = '@parameter.outer',
+        ['ip'] = '@parameter.inner',
+      }
+      for key, query in pairs(select_maps) do
+        vim.keymap.set({ 'x', 'o' }, key, function()
+          ts_select.select_textobject(query, 'textobjects')
+        end, { desc = 'TS select ' .. query })
+      end
+
+      -- Textobject movement keymaps
+      local ts_move = require('nvim-treesitter-textobjects.move')
+      local move_maps = {
+        [']m'] = { query = '@function.outer', method = 'goto_next_start' },
+        [']]'] = { query = '@class.outer', method = 'goto_next_start' },
+        [']M'] = { query = '@function.outer', method = 'goto_next_end' },
+        [']['] = { query = '@class.outer', method = 'goto_next_end' },
+        ['[m'] = { query = '@function.outer', method = 'goto_previous_start' },
+        ['[['] = { query = '@class.outer', method = 'goto_previous_start' },
+        ['[M'] = { query = '@function.outer', method = 'goto_previous_end' },
+        ['[]'] = { query = '@class.outer', method = 'goto_previous_end' },
+      }
+      for key, spec in pairs(move_maps) do
+        vim.keymap.set({ 'n', 'x', 'o' }, key, function()
+          ts_move[spec.method](spec.query, 'textobjects')
+        end, { desc = 'TS move ' .. spec.method .. ' ' .. spec.query })
+      end
+    end,
   },
 }

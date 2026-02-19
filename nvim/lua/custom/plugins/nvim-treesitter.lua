@@ -5,6 +5,12 @@ return {
     config = function()
       require('nvim-treesitter').setup()
 
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function()
+          pcall(vim.treesitter.start)
+        end,
+      })
+
       -- Auto-install parsers on startup
       local ensure_installed = {
         'c',
@@ -22,9 +28,9 @@ return {
       vim.api.nvim_create_autocmd('VimEnter', {
         once = true,
         callback = function()
-          local installed = require('nvim-treesitter').get_installed()
           local to_install = vim.tbl_filter(function(lang)
-            return not vim.list_contains(installed, lang)
+            local ok = pcall(vim.treesitter.language.add, lang)
+            return not ok
           end, ensure_installed)
           if #to_install > 0 then
             require('nvim-treesitter').install(to_install)

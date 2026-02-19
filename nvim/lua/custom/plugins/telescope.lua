@@ -2,7 +2,7 @@
 return {
   'nvim-telescope/telescope.nvim',
   event = 'VimEnter',
-  branch = '0.1.x',
+  branch = 'master',
   dependencies = {
     'nvim-lua/plenary.nvim',
     { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -22,7 +22,11 @@ return {
   -- This guarantees that `require('telescope')` will work.
   config = function()
     require('telescope').setup {
-      -- This is your setup code, placed correctly inside the config function.
+      defaults = {
+        preview = {
+          treesitter = true,
+        },
+      },
       pickers = {
         colorscheme = {
           enable_preview = true,
@@ -69,6 +73,13 @@ return {
         prompt_title = 'Live Grep in Open Files',
       }
     end, { desc = '\\[S\\]earch \\[/\\] in Open Files' })
+
+    -- Live grep from git root
+    vim.keymap.set('n', '<leader>sG', function()
+      local out = vim.fn.systemlist('git rev-parse --show-toplevel')
+      local root = (vim.v.shell_error == 0 and out[1]) or vim.fn.getcwd()
+      builtin.live_grep { cwd = root, prompt_title = 'Live Grep (Git Root)' }
+    end, { desc = '[S]earch by [G]rep (Git Root)' })
 
     -- Shortcut for searching your Neovim configuration files
     vim.keymap.set('n', '<leader>sn', function()

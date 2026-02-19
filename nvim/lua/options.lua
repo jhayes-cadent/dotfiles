@@ -60,19 +60,12 @@ vim.o.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 10
 
--- [[ New Updates]]
--- Change directory to current file being worked on
-vim.o.autochdir = true
-
--- NOTE: autochdir conflicts with oil.nvim, so we use a BufEnter autocmd instead
--- that skips oil:// buffers. Uses lcd so each split tracks its own directory.
+-- NOTE: autochdir conflicts with oil.nvim, so we use a BufEnter autocmd
+-- in autocommands.lua instead. Uses lcd so each split tracks its own directory.
 -- vim.o.autochdir = true
 
 -- Autoread file when file is changed outside of buffer
 vim.o.autoread = true
-
--- Autohighlight the line screen line of the cursor
-vim.o.cursorline = true
 
 -- Highlight matches from last search pattern
 vim.o.hlsearch = true
@@ -82,9 +75,6 @@ vim.o.incsearch = true
 
 -- Wrap long lines at a blank
 vim.o.linebreak = true
-
--- No ignore case when there is a capital
-vim.o.smartcase = true
 
 -- Wrap long lines
 vim.o.wrap = true
